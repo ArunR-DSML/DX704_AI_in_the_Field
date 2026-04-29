@@ -1,0 +1,6 @@
+Create and save an empty deck
+I can save an empty Anki deck for you. What would you like to name the deck?
+name the deck 'empty'
+Saved Anki deck 'empty' to file.
+create an empty deck and save it as 'empty_2'
+Saved Anki deck 'empty_2' to file.

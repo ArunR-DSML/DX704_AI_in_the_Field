@@ -1,0 +1,6 @@
+query	target_category	predicted_category
+What up foo? Need somebody to raise the you-know-what at my next house party.	roofing	electrical
+Do you install solar panels ? 	electrical	roofing
+I am going to sell my house and need my kitchen appliances inspected.	plumbing	electrical
+I want to install a satellite dish. 	roofing	electrical
+Hi, I need pest control in my house for areas not plumbing.	electrical	roofing

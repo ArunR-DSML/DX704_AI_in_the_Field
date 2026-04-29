@@ -1,0 +1,3 @@
+Classify this homeowner request into electrical, plumbing, or roofing:
+     "{query}".
+Return only one category.

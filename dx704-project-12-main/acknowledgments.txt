@@ -1,0 +1,127 @@
+------------ ACKNOWLEDGMENTS / WORKS CITED ---------------------
+
+https://github.com/bu-cds-omds/dx704-examples
+
+https://www.datacamp.com/cheat-sheet/reshaping-data-with-pandas-in-python
+
+https://ai.google.dev/gemini-api/docs/api-key#macos---zsh
+
+https://aistudio.google.com/
+
+
+https://www.w3schools.com/python/pandas/ref_df_itertuples.asp
+
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+Routine conversations and laments with fellow students, in particular: 
+ Mr. James Kantor and Chris Fornesa
+--------------------------------------------------------------------------------------------------------------------------
+
+######## LLMs #########
+
+Google Gemini 2.5 Pro ------------------------------------------------
+What is model.to(device)?
+1. The model
+In our case, model is the object instantiated from BertModel.from_pretrained('bert-base-uncased'). This object represents the entire BERT neural network architecture and its learned weights.
+
+2. The device
+The device variable is a PyTorch object (specifically torch.device) that tells the framework where computations should be performed. It's typically defined as:
+
+"cuda" (or "gpu"): If a CUDA-enabled NVIDIA Graphics Processing Unit (GPU) is available. GPUs are highly parallel and dramatically accelerate the matrix multiplications and computations required for deep learning models like BERT.
+
+"cpu": If a GPU is not available or if you choose to use the Central Processing Unit (CPU). CPUs are sufficient for smaller models or data, but much slower for large-scale training or inference (embedding generation).
+
+3. The Function
+The method model.to(device) performs the following action:
+
+It transfers all the model's tensors (the weights and biases) from their current location (usually the CPU memory after loading) to the memory of the specified device.
+
+Why is this necessary?
+
+For GPU Acceleration: If you want the model to use the GPU for faster calculations, the model's weights must reside in the GPU's memory. If you try to run a model on the GPU (device="cuda") but the input data or model weights are still on the CPU, PyTorch will raise an error.
+
+Consistency: It ensures that both the model and the input data (inputs.to(device)) are on the same device before any computation (outputs = model(**inputs)) takes place, preventing device mismatch errors.
+
+
+=================================================================================
+
+i have used the BERT model to create embeddings for each email in the Enron spam dataset, https://github.com/MWiechmann/enron_spam_data. My next task was:
+
+Part 4: Train a Linear Regression
+Train an ordinary least squares regression for spam/ham status where spam is treated as target value 1 and ham is treated as target value 0 with your embeddings above as the only input variables.
+Save the coefficients of your linear model in a file "coefficients.tsv" with columns dim and coefficient where dim specifies the offset in the embedding vector (0-767).
+Don't worry about the bias term (but your model should still have it).
+
+This was my code:
+
+N = len(df)
+D = 768 # BERT base dimensionality
+
+#  Target y =  mapping
+
+y = df['Spam/Ham'].map({'spam': 1, 'ham': 0}).values
+
+#  Feature Matrix
+X = embeddings_array
+# Train/Test Split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size = 0.2, random_state = 42, stratify = y
+)
+
+print(f"\nTraining set size (X): {X_train.shape}")
+print(f"Test set size (X): {X_test.shape}")
+
+model = LinearRegression(
+    fit_intercept = True
+)
+
+model.fit(X_train, y_train)
+
+# Evaluate Model
+y_pred    = model.predict(X_test)
+coefficients  = model.coef_.flatten()
+dim           = np.arange(len(coefficients))
+
+# print(dim)
+coefficients_df = pd.DataFrame({
+    'dim': dim,
+    'coefficient': coefficients
+})
+
+I have attached the coefficients from my model.  My problem is:  the coefficients I generated  are not passing the autograder's test:
+
+test_01_coefficients (test_project.TestPart4) (0/10)
+CHECK
+     coefficient  expected
+dim                       
+0       0.048806 -0.761633
+1       0.001650 -0.814630
+2      -0.007137 -0.781738
+3      -0.006172 -0.858074
+4       0.032391 -0.778035
+
+DIFF
+     expected  coefficient
+dim                       
+0   -0.761633     0.048806
+1   -0.814630     0.001650
+2   -0.781738    -0.007137
+3   -0.858074    -0.006172
+4   -0.778035     0.032391
+
+0 / 768 rows match.
+Linear regression coefficients do not match.
+
+Please advise me.
+
+----------------------------------
+Based on your code and the autograder output, the problem is almost certainly that you are training your model on a subset of the data, while the autograder expects a model trained on the entire dataset.
+
+In your script, you correctly load X and y, but then you split them into X_train, X_test, y_train, and y_test. You then fit your model only on the 80% training split: model.fit(X_train, y_train)
+
+The autograder's "expected" coefficients were very likely generated by training the model on 100% of the data. Since the models are trained on different data, they will produce different coefficients.
+
+M365 Copilot ---------------------------------------------------------
